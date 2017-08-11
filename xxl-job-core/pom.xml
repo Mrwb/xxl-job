@@ -81,7 +81,12 @@
 			<artifactId>commons-exec</artifactId>
 			<version>${commons-exec.version}</version>
 		</dependency>
-
+		<!-- kryo -->
+		<dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>4.0.1</version>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -1,21 +1,23 @@
 package com.xxl.job.admin.controller;
 
-import com.xxl.job.admin.controller.annotation.PermessionLimit;
-import com.xxl.job.core.biz.AdminBiz;
-import com.xxl.job.core.rpc.codec.RpcRequest;
-import com.xxl.job.core.rpc.codec.RpcResponse;
-import com.xxl.job.core.rpc.netcom.NetComServerFactory;
-import com.xxl.job.core.rpc.serialize.HessianSerializer;
-import com.xxl.job.core.util.HttpClientUtil;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import com.xxl.job.admin.controller.annotation.PermessionLimit;
+import com.xxl.job.core.biz.AdminBiz;
+import com.xxl.job.core.rpc.codec.RpcRequest;
+import com.xxl.job.core.rpc.codec.RpcResponse;
+import com.xxl.job.core.rpc.netcom.NetComServerFactory;
+import com.xxl.job.core.rpc.serialize.KryoSerializer;
+import com.xxl.job.core.util.HttpClientUtil;
 
 /**
  * Created by xuxueli on 17/5/10.
@@ -33,7 +35,7 @@ public class JobApiController {
                 rpcResponse.setError("RpcRequest byte[] is null");
                 return rpcResponse;
             }
-            RpcRequest rpcRequest = (RpcRequest) HessianSerializer.deserialize(requestBytes, RpcRequest.class);
+            RpcRequest rpcRequest = (RpcRequest) KryoSerializer.deserialize(requestBytes, RpcRequest.class);
 
             // invoke
             RpcResponse rpcResponse = NetComServerFactory.invokeService(rpcRequest, null);
@@ -55,7 +57,7 @@ public class JobApiController {
         RpcResponse rpcResponse = doInvoke(request);
 
         // serialize response
-        byte[] responseBytes = HessianSerializer.serialize(rpcResponse);
+        byte[] responseBytes = KryoSerializer.serialize(rpcResponse);
 
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);

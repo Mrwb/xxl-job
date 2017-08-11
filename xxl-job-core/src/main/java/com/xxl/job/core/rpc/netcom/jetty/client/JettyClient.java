@@ -1,11 +1,12 @@
 package com.xxl.job.core.rpc.netcom.jetty.client;
 
-import com.xxl.job.core.rpc.codec.RpcRequest;
-import com.xxl.job.core.rpc.codec.RpcResponse;
-import com.xxl.job.core.rpc.serialize.HessianSerializer;
-import com.xxl.job.core.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.xxl.job.core.rpc.codec.RpcRequest;
+import com.xxl.job.core.rpc.codec.RpcResponse;
+import com.xxl.job.core.rpc.serialize.KryoSerializer;
+import com.xxl.job.core.util.HttpClientUtil;
 
 /**
  * jetty client
@@ -17,7 +18,7 @@ public class JettyClient {
 	public RpcResponse send(RpcRequest request) throws Exception {
 		try {
 			// serialize request
-			byte[] requestBytes = HessianSerializer.serialize(request);
+			byte[] requestBytes = KryoSerializer.serialize(request);
 
 			// reqURL
 			String reqURL = request.getServerAddress();
@@ -34,7 +35,7 @@ public class JettyClient {
             }
 
             // deserialize response
-			RpcResponse rpcResponse = (RpcResponse) HessianSerializer.deserialize(responseBytes, RpcResponse.class);
+			RpcResponse rpcResponse = (RpcResponse) KryoSerializer.deserialize(responseBytes, RpcResponse.class);
 			return rpcResponse;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
