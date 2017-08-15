@@ -12,13 +12,24 @@ public class ShardingUtil {
 
         private int index;  // sharding index
         private int total;  // sharding total
+        private String relationship; // sharding group relationship
 
-        public ShardingVO(int index, int total) {
-            this.index = index;
-            this.total = total;
-        }
 
-        public int getIndex() {
+        public ShardingVO(int index, int total, String relationship) {
+			this.index = index;
+			this.total = total;
+			this.relationship = relationship;
+		}
+
+		public String getRelationship() {
+			return relationship;
+		}
+
+		public void setRelationship(String relationship) {
+			this.relationship = relationship;
+		}
+
+		public int getIndex() {
             return index;
         }
 

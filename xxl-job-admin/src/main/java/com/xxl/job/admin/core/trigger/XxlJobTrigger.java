@@ -11,12 +11,15 @@ import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.biz.model.TriggerParam;
 import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
+
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * xxl-job trigger
@@ -43,8 +46,22 @@ public class XxlJobTrigger {
 
         // broadcast
         if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == executorRouteStrategyEnum && CollectionUtils.isNotEmpty(addressList)) {
-            for (int i = 0; i < addressList.size(); i++) {
-                String address = addressList.get(i);
+        	List<ArrayList> grouplist = new ArrayList<ArrayList>();
+        	int addressListSize = addressList.size();
+        	// 每两个执行器分为一组
+        	 for (int i = 0; i < (addressListSize+1)/2; i++) {
+        		 ArrayList<String> groupitem = new ArrayList<>();
+        		 if((i+1)*2<=addressListSize){
+        			 groupitem.add(addressList.get(i*2));
+        			 groupitem.add(addressList.get(i*2+1));
+        		 }else{
+        			 groupitem.add(addressList.get(i*2));
+        		 }
+        		 grouplist.add(groupitem);
+        	 }
+        	 for (int i = 0; i < (addressListSize+1)/2; i++) {
+        		 ArrayList<String> executorList = grouplist.get(i);
+//                String address = addressList.get(i);
 
                 // 1、save log-id
                 XxlJobLog jobLog = new XxlJobLog();
@@ -65,8 +82,14 @@ public class XxlJobTrigger {
                 triggerMsgSb.append("注册方式：").append( (group.getAddressType() == 0)?"自动注册":"手动录入" );
                 triggerMsgSb.append("<br>阻塞处理策略：").append(blockStrategy.getTitle());
                 triggerMsgSb.append("<br>失败处理策略：").append(failStrategy.getTitle());
-                triggerMsgSb.append("<br>地址列表：").append(group.getRegistryList());
-                triggerMsgSb.append("<br>路由策略：").append(executorRouteStrategyEnum.getTitle()).append("("+i+"/"+addressList.size()+")"); // update01
+                triggerMsgSb.append("<br>Master-Slave分组数：").append(grouplist.size());
+                if(executorList.size()==2){
+                	triggerMsgSb.append("<br>主："+executorList.get(0)+",从："+executorList.get(1));
+            	}else{
+            		triggerMsgSb.append("<br>主："+executorList.get(0)+",从：无");
+            	}
+                triggerMsgSb.append("<br>地址列表：").append(grouplist.get(i));
+                triggerMsgSb.append("<br>路由策略：").append(executorRouteStrategyEnum.getTitle()).append("("+i+"/"+grouplist.size()+")"); // update01
 
                 // 3、trigger-valid
                 if (triggerResult.getCode()==ReturnT.SUCCESS_CODE && CollectionUtils.isEmpty(addressList)) {
@@ -87,15 +110,25 @@ public class XxlJobTrigger {
                     triggerParam.setGlueSource(jobInfo.getGlueSource());
                     triggerParam.setGlueUpdatetime(jobInfo.getGlueUpdatetime().getTime());
                     triggerParam.setBroadcastIndex(i);
-                    triggerParam.setBroadcastTotal(addressList.size()); // update02
+                    triggerParam.setBroadcastTotal(grouplist.size()); // update02
+                    if(executorList.size()==2){
+                    	triggerParam.setRelationship("主："+executorList.get(0)+",从："+executorList.get(1));
+                	}else{
+                		triggerParam.setRelationship("主："+executorList.get(0)+",从：无");
+                	}
 
                     // 4.2、trigger-run (route run / trigger remote executor)
-                    triggerResult = runExecutor(triggerParam, address);     // update03
+                    triggerResult = runExecutor(triggerParam, executorList.get(0));     // update03
                     triggerMsgSb.append("<br><br><span style=\"color:#00c0ef;\" > >>>>>>>>>>>触发调度<<<<<<<<<<< </span><br>").append(triggerResult.getMsg());
 
                     // 4.3、trigger (fail retry)
                     if (triggerResult.getCode()!=ReturnT.SUCCESS_CODE && failStrategy == ExecutorFailStrategyEnum.FAIL_RETRY) {
-                        triggerResult = runExecutor(triggerParam, address);  // update04
+                    	if(executorList.size()==2){
+                    		triggerResult = runExecutor(triggerParam, executorList.get(0));  // 如果分组内只有一个可用执行器agent则使用第一个
+                    	}else{
+                    		triggerResult = runExecutor(triggerParam, executorList.get(1));  // 如果分组内有第二个可用执行器agent则使用第二个
+                    	}
+                        
                         triggerMsgSb.append("<br><br><span style=\"color:#F39C12;\" > >>>>>>>>>>>失败重试<<<<<<<<<<< </span><br>").append(triggerResult.getMsg());
                     }
                 }

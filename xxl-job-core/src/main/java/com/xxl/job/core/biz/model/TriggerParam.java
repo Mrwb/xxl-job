@@ -23,8 +23,17 @@ public class TriggerParam implements Serializable{
 
     private int broadcastIndex;
     private int broadcastTotal;
+    private String relationship;
 
-    public int getJobId() {
+    public String getRelationship() {
+		return relationship;
+	}
+
+	public void setRelationship(String relationship) {
+		this.relationship = relationship;
+	}
+
+	public int getJobId() {
         return jobId;
     }
 

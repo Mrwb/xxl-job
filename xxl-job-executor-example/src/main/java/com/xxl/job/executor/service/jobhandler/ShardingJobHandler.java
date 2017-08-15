@@ -22,7 +22,7 @@ public class ShardingJobHandler extends IJobHandler {
 
 		// 分片参数
 		ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
-		XxlJobLogger.log("分片参数：当前分片序号 = {0}, 总分片数 = {1}", shardingVO.getIndex(), shardingVO.getTotal());
+		XxlJobLogger.log("分片参数：当前分片序号 = {0}, 总分片数 = {1}, 分片分组关系 = {2}", shardingVO.getIndex(), shardingVO.getTotal(),shardingVO.getRelationship());
 
 		// 业务逻辑
 		for (int i = 0; i < shardingVO.getTotal(); i++) {
