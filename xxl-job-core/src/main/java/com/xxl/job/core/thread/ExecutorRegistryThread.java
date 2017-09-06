@@ -23,7 +23,7 @@ public class ExecutorRegistryThread extends Thread {
     }
 
     private Thread registryThread;
-    private boolean toStop = false;
+    private volatile boolean toStop = false;
     public void start(final int port, final String ip, final String appName){
 
         // valid
@@ -47,6 +47,8 @@ public class ExecutorRegistryThread extends Thread {
         registryThread = new Thread(new Runnable() {
             @Override
             public void run() {
+
+                // registry
                 while (!toStop) {
                     try {
                         RegistryParam registryParam = new RegistryParam(RegistryConfig.RegistType.EXECUTOR.name(), appName, executorAddress);
@@ -75,6 +77,30 @@ public class ExecutorRegistryThread extends Thread {
                         logger.error(e.getMessage(), e);
                     }
                 }
+
+                // registry remove
+                try {
+                    RegistryParam registryParam = new RegistryParam(RegistryConfig.RegistType.EXECUTOR.name(), appName, executorAddress);
+                    for (AdminBiz adminBiz: XxlJobExecutor.getAdminBizList()) {
+                        try {
+                            ReturnT<String> registryResult = adminBiz.registryRemove(registryParam);
+                            if (registryResult!=null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
+                                registryResult = ReturnT.SUCCESS;
+                                logger.info(">>>>>>>>>>> xxl-job registry-remove success, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
+                                break;
+                            } else {
+                                logger.info(">>>>>>>>>>> xxl-job registry-remove fail, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
+                            }
+                        } catch (Exception e) {
+                            logger.info(">>>>>>>>>>> xxl-job registry-remove error, registryParam:{}", registryParam, e);
+                        }
+
+                    }
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+                logger.warn(">>>>>>>>>>>> xxl-job, executor registry thread destory.");
+
             }
         });
         registryThread.setDaemon(true);
@@ -83,6 +109,13 @@ public class ExecutorRegistryThread extends Thread {
 
     public void toStop() {
         toStop = true;
+        // interrupt and wait
+        registryThread.interrupt();
+        try {
+            registryThread.join();
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
 }

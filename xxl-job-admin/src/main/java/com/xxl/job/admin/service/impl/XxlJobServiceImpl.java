@@ -132,12 +132,12 @@ public class XxlJobServiceImpl implements XxlJobService {
             //XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);
             return ReturnT.SUCCESS;
         } catch (SchedulerException e) {
-            logger.error("", e);
+            logger.error(e.getMessage(), e);
             try {
                 xxlJobInfoDao.delete(jobInfo.getId());
                 XxlJobDynamicScheduler.removeJob(qz_name, qz_group);
             } catch (SchedulerException e1) {
-                logger.error("", e1);
+                logger.error(e.getMessage(), e1);
             }
             return new ReturnT<String>(ReturnT.FAIL_CODE, "新增任务失败:" + e.getMessage());
         }
@@ -207,7 +207,7 @@ public class XxlJobServiceImpl implements XxlJobService {
             boolean ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, exists_jobInfo.getJobCron());
             return ret?ReturnT.SUCCESS:ReturnT.FAIL;
         } catch (SchedulerException e) {
-            logger.error("", e);
+            logger.error(e.getMessage(), e);
         }
 
 		return ReturnT.FAIL;
@@ -226,7 +226,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			xxlJobLogGlueDao.deleteByJobId(id);
 			return ReturnT.SUCCESS;
 		} catch (SchedulerException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return ReturnT.FAIL;
 	}
@@ -241,7 +241,7 @@ public class XxlJobServiceImpl implements XxlJobService {
             boolean ret = XxlJobDynamicScheduler.pauseJob(name, group);	// jobStatus do not store
             return ret?ReturnT.SUCCESS:ReturnT.FAIL;
 		} catch (SchedulerException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			return ReturnT.FAIL;
 		}
 	}
@@ -256,7 +256,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			boolean ret = XxlJobDynamicScheduler.resumeJob(name, group);
 			return ret?ReturnT.SUCCESS:ReturnT.FAIL;
 		} catch (SchedulerException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			return ReturnT.FAIL;
 		}
 	}
@@ -264,6 +264,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 	@Override
 	public ReturnT<String> triggerJob(int id) {
         XxlJobInfo xxlJobInfo = xxlJobInfoDao.loadById(id);
+        if (xxlJobInfo == null) {
+        	return new ReturnT<String>(ReturnT.FAIL_CODE, "任务ID非法");
+		}
+
         String group = String.valueOf(xxlJobInfo.getJobGroup());
         String name = String.valueOf(xxlJobInfo.getId());
 
@@ -271,8 +275,8 @@ public class XxlJobServiceImpl implements XxlJobService {
 			XxlJobDynamicScheduler.triggerJob(name, group);
 			return ReturnT.SUCCESS;
 		} catch (SchedulerException e) {
-			e.printStackTrace();
-			return ReturnT.FAIL;
+			logger.error(e.getMessage(), e);
+			return new ReturnT<String>(ReturnT.FAIL_CODE, e.getMessage());
 		}
 	}
 
