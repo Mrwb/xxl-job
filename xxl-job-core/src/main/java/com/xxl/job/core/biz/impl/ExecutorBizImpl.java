@@ -115,12 +115,13 @@ public class ExecutorBizImpl implements ExecutorBiz {
                     IJobHandler originJobHandler = GlueFactory.getInstance().loadNewInstance(triggerParam.getGlueSource());
                     jobHandler = new GlueJobHandler(originJobHandler, triggerParam.getGlueUpdatetime());
                 } catch (Exception e) {
-                    logger.error("", e);
+                    logger.error(e.getMessage(), e);
                     return new ReturnT<String>(ReturnT.FAIL_CODE, e.getMessage());
                 }
             }
         } else if (GlueTypeEnum.GLUE_SHELL==GlueTypeEnum.match(triggerParam.getGlueType())
-                || GlueTypeEnum.GLUE_PYTHON==GlueTypeEnum.match(triggerParam.getGlueType()) ) {
+                || GlueTypeEnum.GLUE_PYTHON==GlueTypeEnum.match(triggerParam.getGlueType())
+                || GlueTypeEnum.GLUE_NODEJS==GlueTypeEnum.match(triggerParam.getGlueType())) {
 
             // valid old jobThread
             if (jobThread != null &&

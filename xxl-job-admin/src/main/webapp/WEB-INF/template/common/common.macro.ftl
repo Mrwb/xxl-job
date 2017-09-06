@@ -60,8 +60,8 @@
 <#macro commonHeader>
 	<header class="main-header">
 		<a href="${request.contextPath}/" class="logo">
-			<span class="logo-mini"><b>X</b>XL</span>
-			<span class="logo-lg"><b>任务调度</b>中心</span>
+			<span class="logo-mini"><b>XXL</b></span>
+			<span class="logo-lg"><b>任务调度中心</b></span>
 		</a>
 		<nav class="navbar navbar-static-top" role="navigation">
 			<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"><span class="sr-only">切换导航</span></a>
@@ -175,7 +175,7 @@
 
 <#macro commonFooter >
 	<footer class="main-footer">
-        Powered by <b>XXL-JOB</b> 1.8.2（快照版本）
+        Powered by <b>XXL-JOB</b> 1.9.0（快照版本）
 		<div class="pull-right hidden-xs">
             <strong>Copyright &copy; 2015-${.now?string('yyyy')} &nbsp;
                 <a href="http://www.xuxueli.com/" target="_blank" >xuxueli</a>

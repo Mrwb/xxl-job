@@ -30,7 +30,9 @@ public class HttpClientUtil {
 		byte[] responseBytes = null;
 		
 		HttpPost httpPost = new HttpPost(reqURL);
-		CloseableHttpClient httpClient = HttpClients.createDefault();
+		//CloseableHttpClient httpClient = HttpClients.createDefault();
+		CloseableHttpClient httpClient = HttpClients.custom().disableAutomaticRetries().build();	// disable retry
+
 		try {
 			// init post
 			/*if (params != null && !params.isEmpty()) {
@@ -69,7 +71,7 @@ public class HttpClientUtil {
 			try {
 				httpClient.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 		return responseBytes;
@@ -99,7 +101,7 @@ public class HttpClientUtil {
 				}
 				return message;
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 				throw e;
 			}
 		}

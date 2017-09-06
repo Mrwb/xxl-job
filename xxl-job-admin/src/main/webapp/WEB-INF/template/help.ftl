@@ -28,15 +28,13 @@
 		<!-- Main content -->
 		<section class="content">
 			<div class="callout callout-info">
-				<h4>简介：XXL-JOB</h4>
+				<h4>分布式任务调度平台XXL-JOB</h4>
 				<br>
 				<p>
-                    <a target="_blank" href="http://www.xuxueli.com/">xuxueli</a>
-                    <br><br>
 					<a target="_blank" href="https://github.com/xuxueli/xxl-job">github</a>&nbsp;&nbsp;&nbsp;&nbsp;
 					<iframe src="https://ghbtns.com/github-btn.html?user=xuxueli&repo=xxl-job&type=star&count=true" frameborder="0" scrolling="0" width="170px" height="20px" style="margin-bottom:-5px;"></iframe> 
 					<br><br>
-                    <a target="_blank" href="http://my.oschina.net/xuxueli/blog/690978">oschina（文档中有交流群）</a>
+                    <a target="_blank" href="http://www.xuxueli.com/xxl-job/">文档地址</a>
                     <br><br>
 
 				</p>
